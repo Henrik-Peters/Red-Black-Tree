@@ -13,30 +13,13 @@
 using namespace std;
 
 int main() {
-    int a = 1;
-    int b = 5;
-    int c = 7;
-    int d = 9;
-    
-    RBTree<int> tree;
+    RBTree<int>* tree = new RBTree<int>();
+    int numbers[] = {1, 6, 8, 11, 13, 15, 17, 22, 25, 27, 32, 33};
 
-    cout << "Insert: 7" << endl;
-    tree.insert(&c);
-    cout << "Inv: " << tree.invariant() << endl;
-    tree.dumpTree();
-
-    cout << "Insert: 9" << endl;
-    tree.insert(&d);
-    cout << "Inv: " << tree.invariant() << endl;
-    tree.dumpTree();
-
-    cout << "Insert: 1" << endl;
-    tree.insert(&a);
-    cout << "Inv: " << tree.invariant() << endl;
-    tree.dumpTree();
-
-    cout << "Insert: 5" << endl;
-    tree.insert(&b);
-    cout << "Inv: " << tree.invariant() << endl;
-    tree.dumpTree();
+    for (unsigned int i = 0; i < sizeof(numbers)/sizeof(numbers[0]); i++) {
+        cout << "Insert: " << numbers[i] << endl;
+        tree->insert(&numbers[i]);
+        cout << "Inv: " << tree->invariant() << endl;
+        tree->dumpTree();
+    }
 }

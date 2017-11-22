@@ -26,14 +26,17 @@ private:
 
         const T* key;
         Color color;
+
+        RBTreeNode* parent;
         RBTreeNode* left;
         RBTreeNode* right;
+        RBTree<T>* tree;
 
     public:
-        RBTreeNode(const T* key);
-        RBTreeNode(const T* key, Color color);
+        RBTreeNode(const T* key, RBTree<T>* tree);
+        RBTreeNode(const T* key, RBTreeNode* parent, RBTree<T>* tree, Color color);
         virtual ~RBTreeNode();
-
+        
         #ifdef DEBUG
         bool invariant();
         int invariantBlackNodes();
@@ -42,6 +45,7 @@ private:
         #endif
 
         inline bool isBlack() const { return (this->color == BLACK); }
+        inline void adjustInsert(RBTreeNode* insertNode);
 
         RBTreeNode* lookup(const T* key);
         bool insert(const T* key);
@@ -66,28 +70,32 @@ public:
 
 //Tree nodes
 template <typename T>
-RBTree<T>::RBTreeNode::RBTreeNode(const T* key) {
+RBTree<T>::RBTreeNode::RBTreeNode(const T* key, RBTree<T>* tree) {
     this->left = NULL;
     this->right = NULL;
+    this->parent = NULL;
     this->key = key;
+    this->tree = tree;
     this->color = BLACK;
 }
 
 template <typename T>
-RBTree<T>::RBTreeNode::RBTreeNode(const T* key, Color color) {
+RBTree<T>::RBTreeNode::RBTreeNode(const T* key, RBTreeNode* parent, RBTree<T>* tree, Color color) {
     this->left = NULL;
     this->right = NULL;
+    this->parent = parent;
     this->key = key;
+    this->tree = tree;
     this->color = color;
 }
 
 template <typename T>
 RBTree<T>::RBTreeNode::~RBTreeNode() {
-    if (this->left == NULL) {
+    if (this->left != NULL) {
         delete this->left;
     }
 
-    if (this->right == NULL) {
+    if (this->right != NULL) {
         delete this->right;
     }
 }
@@ -118,16 +126,20 @@ bool RBTree<T>::RBTreeNode::insert(const T* key) {
 
         if (node->key < key) {
             if (node->right == NULL) {
-                node->right = new RBTreeNode(key, RED);
+                node->right = new RBTreeNode(key, node, tree, RED);
+                adjustInsert(node->right);
                 nodeInserted = true;
+
             } else {
                 node = node->right;
             }
 
         } else {
             if (node->left == NULL) {
-                node->left = new RBTreeNode(key, RED);
+                node->left = new RBTreeNode(key, node, tree, RED);
+                adjustInsert(node->left);
                 nodeInserted = true;
+
             } else {
                 node = node->left;
             }
@@ -136,6 +148,11 @@ bool RBTree<T>::RBTreeNode::insert(const T* key) {
 
     //TODO repair tree
     return true;
+}
+
+template <typename T>
+void RBTree<T>::RBTreeNode::adjustInsert(RBTreeNode* insertNode) {
+    //Adjust the tree after an inseration
 }
 
 template <typename T>
@@ -227,7 +244,7 @@ bool RBTree<T>::contains(const T* key) {
 template <typename T>
 bool RBTree<T>::insert(const T* key) {
     if (root == NULL) {
-        root = new RBTreeNode(key);
+        root = new RBTreeNode(key, this);
         return true;
     }
 
