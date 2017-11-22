@@ -22,6 +22,7 @@ private:
         enum Color {
             RED = 0,
             BLACK = 1,
+            DOUBLE_BLACK = 2,
         };
 
         T key;
@@ -284,7 +285,54 @@ void RBTree<T>::RBTreeNode::rightRotate() {
 
 template <typename T>
 bool RBTree<T>::RBTreeNode::remove(const T key) {
-    return true;
+
+    if (this->left != NULL && this->right != NULL) {
+        //For the 2 child case we will convert the problem into 1 or 0 childs
+        //Therefore find the minimum element in the right subtree
+
+        RBTreeNode* minNode = this->right;
+
+        while (minNode->left != NULL) {
+            minNode = minNode->left;
+        }
+
+        //Swap the node values and remove the minimum node
+        this->key = minNode->key;
+
+        //Delete the minimum node
+        if (minNode->parent->left == minNode) {
+            minNode->parent->left = minNode->right;
+        } else {
+            minNode->parent->right = minNode->right;
+        }
+
+        //Red nodes can be deleted without any tree repairing
+        if (minNode->color == BLACK) {
+            //TODO: minNode->right might be null
+            //When the child is red change the color to black
+            if (minNode->right->color == RED) {
+                minNode->right->color = BLACK;
+                
+            } else {
+                //minNode and and the child are both black
+
+                //normally you would create a pseudo double black leaf
+                minNode->right->color = DOUBLE_BLACK;
+            }
+        }
+
+        //prevent the destructor from braking the existing tree
+        minNode->right = NULL;
+        delete minNode;
+        minNode = NULL;
+
+
+    } else if (this->left != NULL ^ this->right != NULL) {
+        //Only 1 child link is active so this is a leaf
+
+    } else {
+        //This node has no child links
+    }
 }
 
 #ifdef DEBUG
@@ -376,9 +424,15 @@ bool RBTree<T>::insert(const T key) {
 
 template <typename T>
 bool RBTree<T>::remove(const T key) {
-    return true;
+    if (root == NULL) {
+        return false;
+    } else {
+        RBTree* node = lookup(key);
+        return (node == NULL) 
+                ? false 
+                : node->remove(key);
+    }
 }
-
 
 #ifdef DEBUG
 template <typename T>
