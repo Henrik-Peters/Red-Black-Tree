@@ -18,7 +18,7 @@ int main() {
 
     for (unsigned int i = 0; i < sizeof(numbers)/sizeof(numbers[0]); i++) {
         cout << "Insert: " << numbers[i] << endl;
-        tree->insert(&numbers[i]);
+        tree->insert(numbers[i]);
         cout << "Inv: " << tree->invariant() << endl;
         tree->dumpTree();
     }

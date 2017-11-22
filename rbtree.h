@@ -24,7 +24,7 @@ private:
             BLACK = 1,
         };
 
-        const T* key;
+        T key;
         Color color;
 
         RBTreeNode* parent;
@@ -33,8 +33,8 @@ private:
         RBTree<T>* tree;
 
     public:
-        RBTreeNode(const T* key, RBTree<T>* tree);
-        RBTreeNode(const T* key, RBTreeNode* parent, RBTree<T>* tree, Color color);
+        RBTreeNode(const T key, RBTree<T>* tree);
+        RBTreeNode(const T key, RBTreeNode* parent, RBTree<T>* tree, Color color);
         virtual ~RBTreeNode();
 
         #ifdef DEBUG
@@ -48,18 +48,18 @@ private:
         inline void leftRotate();
         inline void rightRotate();
 
-        RBTreeNode* lookup(const T* key);
-        bool insert(const T* key);
-        bool remove(const T* key);
+        RBTreeNode* lookup(const T key);
+        bool insert(const T key);
+        bool remove(const T key);
     } *root;
 
 public:
     RBTree();
     virtual ~RBTree();
 
-    bool contains(const T* key);
-    bool insert(const T* key);
-    bool remove(const T* key);
+    bool contains(const T key);
+    bool insert(const T key);
+    bool remove(const T key);
 
     #ifdef DEBUG
     bool invariant();
@@ -69,7 +69,7 @@ public:
 
 //Tree Nodes
 template <typename T>
-RBTree<T>::RBTreeNode::RBTreeNode(const T* key, RBTree<T>* tree) {
+RBTree<T>::RBTreeNode::RBTreeNode(const T key, RBTree<T>* tree) {
     this->left = NULL;
     this->right = NULL;
     this->parent = NULL;
@@ -79,7 +79,7 @@ RBTree<T>::RBTreeNode::RBTreeNode(const T* key, RBTree<T>* tree) {
 }
 
 template <typename T>
-RBTree<T>::RBTreeNode::RBTreeNode(const T* key, RBTreeNode* parent, RBTree<T>* tree, Color color) {
+RBTree<T>::RBTreeNode::RBTreeNode(const T key, RBTreeNode* parent, RBTree<T>* tree, Color color) {
     this->left = NULL;
     this->right = NULL;
     this->parent = parent;
@@ -101,7 +101,7 @@ RBTree<T>::RBTreeNode::~RBTreeNode() {
 
 template <typename T>
 typename RBTree<T>::RBTreeNode* 
-         RBTree<T>::RBTreeNode::lookup(const T* key) {
+         RBTree<T>::RBTreeNode::lookup(const T key) {
 
     RBTreeNode* node = this;
 
@@ -115,7 +115,7 @@ typename RBTree<T>::RBTreeNode*
 }
 
 template <typename T>
-bool RBTree<T>::RBTreeNode::insert(const T* key) {
+bool RBTree<T>::RBTreeNode::insert(const T key) {
     //Find the insertion position
     RBTreeNode* node = this;
     bool nodeInserted = false;
@@ -283,7 +283,7 @@ void RBTree<T>::RBTreeNode::rightRotate() {
 }
 
 template <typename T>
-bool RBTree<T>::RBTreeNode::remove(const T* key) {
+bool RBTree<T>::RBTreeNode::remove(const T key) {
     return true;
 }
 
@@ -329,7 +329,7 @@ int RBTree<T>::RBTreeNode::invariantBlackNodes() {
 template <typename T>
 void RBTree<T>::RBTreeNode::dumpNode(const string& prefix, bool lastNode) {
     //print the current element and the children
-    cout << prefix << (lastNode ? "└── " : "├── ") << *key << (color == RED ? " (R)" : " (B)") << endl;
+    cout << prefix << (lastNode ? "└── " : "├── ") << key << (color == RED ? " (R)" : " (B)") << endl;
 
     if (left != NULL) {
         left->dumpNode(prefix + (lastNode ? "    " : "│   "), right == NULL);
@@ -356,7 +356,7 @@ RBTree<T>::~RBTree() {
 }
 
 template <typename T>
-bool RBTree<T>::contains(const T* key) {
+bool RBTree<T>::contains(const T key) {
     if (root == NULL) {
         return false;
     } else {
@@ -365,7 +365,7 @@ bool RBTree<T>::contains(const T* key) {
 }
 
 template <typename T>
-bool RBTree<T>::insert(const T* key) {
+bool RBTree<T>::insert(const T key) {
     if (root == NULL) {
         root = new RBTreeNode(key, this);
         return true;
@@ -375,7 +375,7 @@ bool RBTree<T>::insert(const T* key) {
 }
 
 template <typename T>
-bool RBTree<T>::remove(const T* key) {
+bool RBTree<T>::remove(const T key) {
     return true;
 }
 
