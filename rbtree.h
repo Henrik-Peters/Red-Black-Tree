@@ -155,6 +155,73 @@ bool RBTree<T>::RBTreeNode::insert(const T* key) {
 template <typename T>
 void RBTree<T>::RBTreeNode::adjustInsert(RBTreeNode* insertNode) {
     //Adjust the tree after an inseration
+    RBTreeNode* node = insertNode;
+
+    while (true) {
+        if (node->parent == NULL) {
+            //node is the root node
+            node->color = BLACK;
+            return;
+    
+        } else if (node->parent->color == BLACK) {
+            //the black depth is the same on all paths
+            return;
+
+        } else {
+            #ifdef DEBUG
+            //red nodes always have a parent
+            assert (node->parent->parent != NULL);
+
+            //the parent of red nodes is always black
+            assert (node->parent->parent->color == BLACK);
+            #endif
+
+            RBTreeNode* parent = node->parent;
+            RBTreeNode* grand = node->parent->parent;
+            RBTreeNode* uncle = (grand->left == parent)
+                                ? grand->right 
+                                : grand->left;
+
+            //when parent and uncle are red swap their color
+            //and color the grand parent of this node red
+            if (uncle != NULL && uncle->color == RED) {
+                parent->color = BLACK;
+                uncle->color = BLACK;
+                grand->color = RED;
+
+                //adjust the tree for the grand parent
+                node = grand;
+                continue;
+
+            } else {
+                //the parent is red and the uncle is black or empty
+                //rotate the parent into the grandparent position
+
+                if (grand->left != NULL && node == grand->left->right) {
+                    parent->leftRotate();
+                    node = node->left;
+
+                } else if (node == grand->right->left) {
+                    parent->rightRotate();
+                    node = node->right;
+                }
+                
+                //Update pointers after the rotation
+                parent = node->parent;
+                grand = node->parent->parent;
+
+                //The node will not be a subtree of the grandparent
+                if (node == parent->left) {
+                    grand->rightRotate();
+                } else {
+                    grand->leftRotate();
+                }
+
+                parent->color = BLACK;
+                grand->color = RED;
+            }
+        }
+    }
 }
 
 template <typename T>
