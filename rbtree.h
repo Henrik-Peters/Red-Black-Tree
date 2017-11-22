@@ -36,7 +36,7 @@ private:
         RBTreeNode(const T* key, RBTree<T>* tree);
         RBTreeNode(const T* key, RBTreeNode* parent, RBTree<T>* tree, Color color);
         virtual ~RBTreeNode();
-        
+
         #ifdef DEBUG
         bool invariant();
         int invariantBlackNodes();
@@ -46,6 +46,8 @@ private:
 
         inline bool isBlack() const { return (this->color == BLACK); }
         inline void adjustInsert(RBTreeNode* insertNode);
+        inline void leftRotate();
+        inline void rightRotate();
 
         RBTreeNode* lookup(const T* key);
         bool insert(const T* key);
@@ -153,6 +155,68 @@ bool RBTree<T>::RBTreeNode::insert(const T* key) {
 template <typename T>
 void RBTree<T>::RBTreeNode::adjustInsert(RBTreeNode* insertNode) {
     //Adjust the tree after an inseration
+}
+
+template <typename T>
+void RBTree<T>::RBTreeNode::leftRotate() {
+    #ifdef DEBUG
+    //the right node will be the new parent
+    assert (this->right != NULL);
+    #endif
+
+    //rotate the right node to the left
+    RBTreeNode* root = this->right;
+
+    this->right = root->left;
+    root->left = this;
+    root->parent = this->parent;
+    
+    //update the child link
+    if (this->parent != NULL) {
+        if (this->parent->left == this) {
+            this->parent->left = root;
+        } else {
+            this->parent->right = root;
+        }
+    }
+    
+    this->parent = root;
+
+    //set the new root of the tree
+    if (root->parent == NULL) {
+        tree->root = root;
+    }
+}
+
+template <typename T>
+void RBTree<T>::RBTreeNode::rightRotate() {
+    #ifdef DEBUG
+    //the left node will be the new parent
+    assert (this->left != NULL);
+    #endif
+
+    //rotate the left node to the right
+    RBTreeNode* root = this->left;
+
+    this->left = root->right;
+    root->right = this;
+    root->parent = this->parent;
+    
+    //update the child link
+    if (this->parent != NULL) {
+        if (this->parent->left == this) {
+            this->parent->left = root;
+        } else {
+            this->parent->right = root;
+        }
+    }
+    
+    this->parent = root;
+
+    //set the new root of the tree
+    if (root->parent == NULL) {
+        tree->root = root;
+    }
 }
 
 template <typename T>
