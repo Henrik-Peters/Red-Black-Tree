@@ -40,7 +40,6 @@ private:
         #ifdef DEBUG
         bool invariant();
         int invariantBlackNodes();
-        bool balanced();
         void dumpNode(const string& prefix, bool lastNode);
         #endif
 
@@ -56,7 +55,6 @@ private:
 
 public:
     RBTree();
-    RBTree(const RBTree& orig);
     virtual ~RBTree();
 
     bool contains(const T* key);
@@ -65,12 +63,11 @@ public:
 
     #ifdef DEBUG
     bool invariant();
-    bool balanced();
     void dumpTree();
     #endif
 };
 
-//Tree nodes
+//Tree Nodes
 template <typename T>
 RBTree<T>::RBTreeNode::RBTreeNode(const T* key, RBTree<T>* tree) {
     this->left = NULL;
@@ -110,7 +107,7 @@ typename RBTree<T>::RBTreeNode*
 
     while (node != NULL && node->key != key) {
         node = node->key < key 
-                ? node->right 
+                ? node->right
                 : node->left;
     }
 
@@ -148,7 +145,6 @@ bool RBTree<T>::RBTreeNode::insert(const T* key) {
         }
     }
 
-    //TODO repair tree
     return true;
 }
 
@@ -300,13 +296,13 @@ bool RBTree<T>::RBTreeNode::invariant() {
         (left == NULL || left->color == BLACK) && 
         (right == NULL || right->color == BLACK)
     );
-    
+
     //Left nodes have a lower ordner and right nodes a higher order
     bool invOrder = (left == NULL  || left->key  < this->key) && 
                     (right == NULL || right->key > this->key);
 
     //Every path to a leaf node contains the same number of black nodes
-    bool blackNodeCount = invariantBlackNodes();
+    bool blackNodeCount = invariantBlackNodes() > -1;
 
     return invColor && invOrder && blackNodeCount && 
            (left == NULL || left->invariant()) && 
@@ -328,11 +324,6 @@ int RBTree<T>::RBTreeNode::invariantBlackNodes() {
     return (leftCount == rightCount && leftCount != -1)
            ? leftCount + this->color
            : -1;
-}
-
-template <typename T>
-bool RBTree<T>::RBTreeNode::balanced() {
-    return true;
 }
 
 template <typename T>
@@ -358,18 +349,19 @@ RBTree<T>::RBTree() {
 }
 
 template <typename T>
-RBTree<T>::RBTree(const RBTree<T>& orig) {
-
-}
-
-template <typename T>
 RBTree<T>::~RBTree() {
-
+    if (root != NULL) {
+        delete root;
+    }
 }
 
 template <typename T>
 bool RBTree<T>::contains(const T* key) {
-    return true;
+    if (root == NULL) {
+        return false;
+    } else {
+        return root->lookup(key) != NULL;
+    }
 }
 
 template <typename T>
@@ -396,11 +388,6 @@ bool RBTree<T>::invariant() {
         root->isBlack() &&
         root->invariant()
     );
-}
-
-template <typename T>
-bool RBTree<T>::balanced() {
-    return true;
 }
 
 template <typename T>
