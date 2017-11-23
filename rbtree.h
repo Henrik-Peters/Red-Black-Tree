@@ -46,12 +46,13 @@ private:
 
         inline bool isBlack() const { return (this->color == BLACK); }
         inline void adjustInsert(RBTreeNode* insertNode);
+        inline void adjustRemove();
         inline void leftRotate();
         inline void rightRotate();
 
         RBTreeNode* lookup(const T key);
         bool insert(const T key);
-        bool remove(const T key);
+        void remove();
     } *root;
 
 public:
@@ -284,55 +285,102 @@ void RBTree<T>::RBTreeNode::rightRotate() {
 }
 
 template <typename T>
-bool RBTree<T>::RBTreeNode::remove(const T key) {
+void RBTree<T>::RBTreeNode::remove() {
+    RBTreeNode* node = this;
 
     if (this->left != NULL && this->right != NULL) {
         //For the 2 child case we will convert the problem into 1 or 0 childs
         //Therefore find the minimum element in the right subtree
 
-        RBTreeNode* minNode = this->right;
+        node = this->right;
 
-        while (minNode->left != NULL) {
-            minNode = minNode->left;
+        while (node->left != NULL) {
+            node = node->left;
         }
 
         //Swap the node values and remove the minimum node
-        this->key = minNode->key;
+        this->key = node->key;
+    }
 
-        //Delete the minimum node
-        if (minNode->parent->left == minNode) {
-            minNode->parent->left = minNode->right;
-        } else {
-            minNode->parent->right = minNode->right;
-        }
+    //Now we have 1 or 0 childs
+    RBTreeNode* child = (node->left == NULL) 
+                        ? node->right 
+                        : node->left;
 
-        //Red nodes can be deleted without any tree repairing
-        if (minNode->color == BLACK) {
-            //TODO: minNode->right might be null
-            //When the child is red change the color to black
-            if (minNode->right->color == RED) {
-                minNode->right->color = BLACK;
-                
-            } else {
-                //minNode and and the child are both black
+    //Detach the node from the tree
+    if (node->parent == NULL) {
+        node->tree->root = child;
 
-                //normally you would create a pseudo double black leaf
-                minNode->right->color = DOUBLE_BLACK;
-            }
-        }
-
-        //prevent the destructor from braking the existing tree
-        minNode->right = NULL;
-        delete minNode;
-        minNode = NULL;
-
-
-    } else if (this->left != NULL ^ this->right != NULL) {
-        //Only 1 child link is active so this is a leaf
+    } else if (node->parent->left == node) {
+        node->parent->left = child;
 
     } else {
-        //This node has no child links
+        node->parent->right = child;
     }
+
+    //Red nodes can be deleted without any tree repairing
+    if (node->color == BLACK) {
+
+        //When the child is red change the color to black
+        if (child != NULL && child->color == RED) {
+            child->color = BLACK;
+            
+        } else {
+            //Node and the child are both black (null nodes are treated as black)
+            bool pseudoNode = false;
+
+            if (child != NULL) {
+                child->color = DOUBLE_BLACK;
+
+            } else {
+                //Create a pseudo double black leaf
+                child = new RBTreeNode((T)0, node->parent, node->tree, DOUBLE_BLACK);
+                pseudoNode = true;
+
+                //Attach the double black leaf node
+                if (node->parent == NULL) {
+                    node->tree->root = child;
+            
+                } else if (node->parent->left == node) {
+                    node->parent->left = child;
+            
+                } else {
+                    node->parent->right = child;
+                }
+            }
+
+            child->adjustRemove();
+            child->color = BLACK;
+
+            //Detatch the pseudo node from the tree
+            if (pseudoNode) {
+                if (child->parent == NULL) {
+                    child->tree->root = NULL;
+            
+                } else if (child->parent->left == child) {
+                    child->parent->left = NULL;
+            
+                } else {
+                    child->parent->right = NULL;
+                }
+
+                delete child;
+            }
+        }
+    }
+
+    //Prevent the destructor from deleting nodes
+    node->left = NULL;
+    node->right = NULL;
+    delete node;
+}
+
+template <typename T>
+void RBTree<T>::RBTreeNode::adjustRemove() {
+    //Adjust the tree when a node was colored double black
+    #ifdef DEBUG
+    assert (this->color == DOUBLE_BLACK);
+    #endif
 }
 
 #ifdef DEBUG
@@ -345,7 +393,7 @@ bool RBTree<T>::RBTreeNode::invariant() {
         (right == NULL || right->color == BLACK)
     );
 
-    //Left nodes have a lower ordner and right nodes a higher order
+    //Left nodes have a lower order and right nodes a higher order
     bool invOrder = (left == NULL  || left->key  < this->key) && 
                     (right == NULL || right->key > this->key);
 
@@ -427,10 +475,14 @@ bool RBTree<T>::remove(const T key) {
     if (root == NULL) {
         return false;
     } else {
-        RBTree* node = lookup(key);
-        return (node == NULL) 
-                ? false 
-                : node->remove(key);
+        RBTreeNode* node = root->lookup(key);
+
+        if (node == NULL) {
+            return false;
+        } else {
+            node->remove();
+            return true;
+        }
     }
 }
 
