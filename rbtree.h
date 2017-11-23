@@ -381,6 +381,89 @@ void RBTree<T>::RBTreeNode::adjustRemove() {
     #ifdef DEBUG
     assert (this->color == DOUBLE_BLACK);
     #endif
+
+    RBTreeNode* node = this;
+    
+    while (true) {
+        if (node->parent == NULL) {
+            //node is the root node
+            node->color = BLACK;
+            return;
+        }
+
+        RBTreeNode* parent = node->parent;
+        RBTreeNode* sibling = (node == node->parent->left)
+                                ? node->parent->right 
+                                : node->parent->left;
+
+        //Black parent and red sibling
+        if (sibling->color == RED) {
+            sibling->color = BLACK;
+            parent->color = RED;
+
+            if (node == parent->left) {
+                parent->leftRotate();
+                sibling = parent->right;
+
+            } else {
+                parent->rightRotate();
+                sibling = parent->left;
+            }
+        }
+
+        //Black sibling with black childs
+        if (parent->color == BLACK && 
+                   (sibling->left == NULL || sibling->left->color == BLACK) && 
+                   (sibling->right == NULL || sibling->right->color == BLACK)) {
+
+                sibling->color = RED;
+                node = parent;
+                continue;
+        }
+
+        //Everything black only the parent is red
+        if (parent->color == RED && 
+                   (sibling->left == NULL || sibling->left->color == BLACK) && 
+                   (sibling->right == NULL || sibling->right->color == BLACK)) {
+
+                sibling->color = RED;
+                parent->color = BLACK;
+                return;
+        }
+
+        //Black sibling with black and red childs
+        if (node == parent->left && 
+                   (sibling->right == NULL || sibling->right->color == BLACK)) {
+
+                sibling->color = RED;
+                sibling->left->color = BLACK;
+                sibling->rightRotate();
+                sibling = sibling->left;
+        }
+
+        //Black sibling with black and red childs (symmetric case)
+        if (node == parent->right &&
+                   (sibling->left == NULL || sibling->left->color == BLACK)) {
+
+                sibling->color = RED;
+                sibling->right->color = BLACK;
+                sibling->leftRotate();
+                sibling = sibling->right;
+        }
+
+        sibling->color = parent->color;
+        parent->color = BLACK;
+
+        if (node == parent->left) {
+            parent->leftRotate();
+            sibling->right->color = BLACK;
+
+        } else {
+            parent->rightRotate();
+            sibling->left->color = BLACK;
+        }
+        return;
+    }
 }
 
 #ifdef DEBUG
