@@ -6,10 +6,11 @@
 #ifndef RBTREE_H
 #define RBTREE_H
 
-#include <assert.h>
-
 #ifdef DEBUG
-#include<iostream>
+#include <assert.h>
+#include <iostream>
+#include <string>
+#include <sstream>
 using namespace std;
 #endif
 
@@ -41,7 +42,7 @@ private:
         #ifdef DEBUG
         bool invariant();
         int invariantBlackNodes();
-        void dumpNode(const string& prefix, bool lastNode);
+        void dumpNode(ostream& buffer, const string& prefix, bool lastNode);
         #endif
 
         inline bool isBlack() const { return (this->color == BLACK); }
@@ -66,6 +67,7 @@ public:
     #ifdef DEBUG
     bool invariant();
     void dumpTree();
+    string toString();
     #endif
 };
 
@@ -506,16 +508,16 @@ int RBTree<T>::RBTreeNode::invariantBlackNodes() {
 }
 
 template <typename T>
-void RBTree<T>::RBTreeNode::dumpNode(const string& prefix, bool lastNode) {
+void RBTree<T>::RBTreeNode::dumpNode(ostream& buffer, const string& prefix, bool lastNode) {
     //print the current element and the children
-    cout << prefix << (lastNode ? "└── " : "├── ") << key << (color == RED ? " (R)" : " (B)") << endl;
+    buffer << prefix << (lastNode ? "└── " : "├── ") << key << (color == RED ? " (R)" : " (B)") << endl;
 
     if (left != NULL) {
-        left->dumpNode(prefix + (lastNode ? "    " : "│   "), right == NULL);
+        left->dumpNode(buffer, prefix + (lastNode ? "    " : "│   "), right == NULL);
     }
 
     if (right != NULL) {
-        right->dumpNode(prefix + (lastNode ? "    " : "│   "), true);
+        right->dumpNode(buffer, prefix + (lastNode ? "    " : "│   "), true);
     }
 }
 #endif
@@ -590,6 +592,19 @@ void RBTree<T>::dumpTree() {
     }
 
     cout << endl;
+}
+
+template <typename T>
+string RBTree<T>::toString() {
+    stringstream buffer;
+
+    if (root == NULL) {
+        buffer << "empty tree";
+    } else {
+        root->dumpNode(buffer, "", true);
+    }
+
+    return buffer.str();
 }
 #endif
 

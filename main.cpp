@@ -20,6 +20,6 @@ int main() {
         cout << "Insert: " << numbers[i] << endl;
         tree->insert(numbers[i]);
         cout << "Inv: " << tree->invariant() << endl;
-        tree->dumpTree();
+        cout << tree->toString();
     }
 }
