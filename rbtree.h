@@ -353,7 +353,7 @@ void RBTree<T>::RBTreeNode::remove() {
                 if (node->parent == NULL) {
                     node->tree->root = child;
             
-                } else if (node->parent->left == node) {
+                } else if (node->parent->left == NULL) {
                     node->parent->left = child;
             
                 } else {
@@ -443,24 +443,23 @@ void RBTree<T>::RBTreeNode::adjustRemove() {
                 return;
         }
 
-        //Black sibling with black and red childs
+        //Black sibling with the siblings left child red
         if (node == parent->left && 
-                   (sibling->right == NULL || sibling->right->color == BLACK)) {
+            (sibling->right == NULL || sibling->right->color == BLACK)) {
 
                 sibling->color = RED;
                 sibling->left->color = BLACK;
                 sibling->rightRotate();
-                sibling = sibling->left;
-        }
+                sibling = sibling->parent;
 
-        //Black sibling with black and red childs (symmetric case)
-        if (node == parent->right &&
+        //Black sibling with the siblings right child red
+        } else if (node == parent->right &&
                    (sibling->left == NULL || sibling->left->color == BLACK)) {
 
                 sibling->color = RED;
                 sibling->right->color = BLACK;
                 sibling->leftRotate();
-                sibling = sibling->right;
+                sibling = sibling->parent;
         }
 
         sibling->color = parent->color;
