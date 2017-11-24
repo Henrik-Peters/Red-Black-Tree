@@ -237,7 +237,7 @@ void RBTree<T>::RBTreeNode::leftRotate() {
     this->right = root->left;
     root->left = this;
     root->parent = this->parent;
-    
+
     //update the child link
     if (this->parent != NULL) {
         if (this->parent->left == this) {
@@ -245,6 +245,11 @@ void RBTree<T>::RBTreeNode::leftRotate() {
         } else {
             this->parent->right = root;
         }
+    }
+
+    //update the parent link
+    if (this->right != NULL) {
+        this->right->parent = this;
     }
     
     this->parent = root;
@@ -276,6 +281,11 @@ void RBTree<T>::RBTreeNode::rightRotate() {
         } else {
             this->parent->right = root;
         }
+    }
+
+    //update the parent link
+    if (this->left != NULL) {
+        this->left->parent = this;
     }
     
     this->parent = root;
@@ -583,12 +593,10 @@ bool RBTree<T>::invariant() {
 
 template <typename T>
 void RBTree<T>::dumpTree() {
-    //std::cout << std::endl;
-
     if (root == NULL) {
         cout << "empty tree";
     } else {
-        root->dumpNode("", true);
+        root->dumpNode(cout, "", true);
     }
 
     cout << endl;
