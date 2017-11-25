@@ -112,6 +112,34 @@ bool randomInsert(int amount, bool checkContains = true, bool invariantAfterInse
     TestPassed;
 }
 
+bool randomRemove(int amount) {
+    IntTree* tree = new IntTree();
+    int numbers[amount];
+    
+    for (int i = 0; i < amount; i++) {
+        numbers[i] = i;
+    }
+    
+    random_shuffle(numbers, numbers+amount);
+
+    for (int i = 0; i < amount; i++) {
+        tree->insert(numbers[i]);
+    }
+
+    for (int i = 0; i < 10; i++) {
+        random_shuffle(numbers, numbers+amount);
+    }
+
+    for (int i = 0; i < amount; i++) {
+        tree->remove(numbers[i]);
+        AssertTrue(tree->invariant());
+        AssertFalse(tree->contains(numbers[i]));
+    }
+
+    delete tree;
+    TestPassed;
+}
+
 int main() {
     Test testSuite[] = {
         {"Inserting 1 element into empty tree", []() {
@@ -434,6 +462,71 @@ int main() {
             delete tree;
             TestPassed;
         }},
+        {"Removing black leaf [0 childs]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(1);
+            tree->insert(2);
+            tree->insert(3);
+            tree->insert(4);
+
+            //remove 3 to get a completly black tree
+            tree->remove(3);
+            AssertTrue(tree->invariant());
+
+            tree->remove(4);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(3));
+            AssertFalse(tree->contains(4));
+            AssertTrue(tree->contains(1));
+            AssertTrue(tree->contains(2));
+            AssertEquals("└── 2 (B)\n    └── 1 (R)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing node with 1 child [red child]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(1);
+            tree->insert(2);
+            tree->insert(3);
+            tree->insert(4);
+
+            tree->remove(3);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(3));
+            AssertTrue(tree->contains(1));
+            AssertTrue(tree->contains(2));
+            AssertTrue(tree->contains(4));
+            AssertEquals("└── 2 (B)\n    ├── 1 (B)\n    └── 4 (B)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing node with 2 childs [root node]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(1);
+            tree->insert(2);
+            tree->insert(3);
+            tree->insert(4);
+
+            //remove 4 to get black childs for the root
+            tree->remove(4);
+            AssertTrue(tree->invariant());
+
+            tree->remove(2);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(4));
+            AssertFalse(tree->contains(2));
+            AssertTrue(tree->contains(1));
+            AssertTrue(tree->contains(3));
+            AssertEquals("└── 3 (B)\n    └── 1 (R)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
         {"Removing adjust case 1 [0 childs, root node]", []() {
             IntTree* tree = new IntTree();
             tree->insert(7);
@@ -630,6 +723,18 @@ int main() {
 
             delete tree;
             TestPassed;
+        }},
+        {"Removing 20 elements (random)", []() {
+            return randomRemove(20);
+        }},
+        {"Removing 50 elements (random)", []() {
+            return randomRemove(50);
+        }},
+        {"Removing 100 elements (random)", []() {
+            return randomRemove(100);
+        }},
+        {"Removing 1000 elements (random)", []() {
+            return randomRemove(1000);
         }}
     };
 
