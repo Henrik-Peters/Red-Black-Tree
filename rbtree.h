@@ -71,7 +71,7 @@ public:
     #endif
 };
 
-//Tree Nodes
+//Tree nodes
 template <typename T>
 RBTree<T>::RBTreeNode::RBTreeNode(const T key, RBTree<T>* tree) {
     this->left = NULL;
@@ -154,7 +154,7 @@ bool RBTree<T>::RBTreeNode::insert(const T key) {
 
 template <typename T>
 void RBTree<T>::RBTreeNode::adjustInsert(RBTreeNode* insertNode) {
-    //Adjust the tree after an inseration
+    //Adjust the tree after an insertion
     RBTreeNode* node = insertNode;
 
     while (true) {
@@ -330,6 +330,11 @@ void RBTree<T>::RBTreeNode::remove() {
         node->parent->right = child;
     }
 
+    //Update the childs parent link
+    if (child != NULL) {
+        child->parent = node->parent;
+    }
+
     //Red nodes can be deleted without any tree repairing
     if (node->color == BLACK) {
 
@@ -364,7 +369,7 @@ void RBTree<T>::RBTreeNode::remove() {
             child->adjustRemove();
             child->color = BLACK;
 
-            //Detatch the pseudo node from the tree
+            //Detach the pseudo node from the tree
             if (pseudoNode) {
                 if (child->parent == NULL) {
                     child->tree->root = NULL;
@@ -425,8 +430,8 @@ void RBTree<T>::RBTreeNode::adjustRemove() {
 
         //Black sibling with black childs
         if (parent->color == BLACK && 
-                   (sibling->left == NULL || sibling->left->color == BLACK) && 
-                   (sibling->right == NULL || sibling->right->color == BLACK)) {
+            (sibling->left == NULL || sibling->left->color == BLACK) && 
+            (sibling->right == NULL || sibling->right->color == BLACK)) {
 
                 sibling->color = RED;
                 node = parent;
@@ -435,8 +440,8 @@ void RBTree<T>::RBTreeNode::adjustRemove() {
 
         //Everything black only the parent is red
         if (parent->color == RED && 
-                   (sibling->left == NULL || sibling->left->color == BLACK) && 
-                   (sibling->right == NULL || sibling->right->color == BLACK)) {
+            (sibling->left == NULL || sibling->left->color == BLACK) && 
+            (sibling->right == NULL || sibling->right->color == BLACK)) {
 
                 sibling->color = RED;
                 parent->color = BLACK;
@@ -454,7 +459,7 @@ void RBTree<T>::RBTreeNode::adjustRemove() {
 
         //Black sibling with the siblings right child red
         } else if (node == parent->right &&
-                   (sibling->left == NULL || sibling->left->color == BLACK)) {
+                    (sibling->left == NULL || sibling->left->color == BLACK)) {
 
                 sibling->color = RED;
                 sibling->right->color = BLACK;
