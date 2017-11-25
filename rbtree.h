@@ -201,7 +201,7 @@ void RBTree<T>::RBTreeNode::adjustInsert(RBTreeNode* insertNode) {
                     parent->leftRotate();
                     node = node->left;
 
-                } else if (node == grand->right->left) {
+                } else if (grand->right != NULL && node == grand->right->left) {
                     parent->rightRotate();
                     node = node->right;
                 }
