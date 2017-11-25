@@ -385,6 +385,251 @@ int main() {
         }},
         {"Inserting 1 Mio elements (random)", []() {
             return randomInsert(1000000, false, false);
+        }},
+        {"Removing the root node", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(5);
+            tree->remove(5);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(5));
+            AssertEquals("empty tree", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing a red leaf [0 childs]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(5);
+            tree->insert(1);
+            tree->insert(7);
+
+            tree->remove(7);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(7));
+            AssertTrue(tree->contains(5));
+            AssertTrue(tree->contains(1));
+            AssertEquals("└── 5 (B)\n    └── 1 (R)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing a black node with red child [1 child]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(5);
+            tree->insert(1);
+            tree->insert(7);
+            tree->insert(3);
+
+            tree->remove(1);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(1));
+            AssertTrue(tree->contains(5));
+            AssertTrue(tree->contains(7));
+            AssertTrue(tree->contains(3));
+            AssertEquals("└── 5 (B)\n    ├── 3 (B)\n    └── 7 (B)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing adjust case 1 [0 childs, root node]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(7);
+            tree->remove(7);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(7));
+            AssertEquals("empty tree", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing adjust case 2 [0 childs, left node]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(3);
+            tree->insert(2);
+            tree->insert(5);
+            tree->insert(7);
+            tree->insert(8);
+            tree->insert(9);
+
+            tree->remove(2);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(2));
+            AssertTrue(tree->contains(3));
+            AssertTrue(tree->contains(5));
+            AssertTrue(tree->contains(7));
+            AssertTrue(tree->contains(8));
+            AssertTrue(tree->contains(9));
+            AssertEquals("└── 7 (B)\n    ├── 3 (B)\n    │   └── 5 (R)\n    └── 8 (B)\n        └── 9 (R)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing adjust case 2 [0 childs, right node]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(8);
+            tree->insert(6);
+            tree->insert(7);
+            tree->insert(1);
+            tree->insert(4);
+            tree->insert(3);
+
+            //same case when deleting the 7 (is root with 2 childs)
+            tree->remove(8);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(8));
+            AssertTrue(tree->contains(6));
+            AssertTrue(tree->contains(7));
+            AssertTrue(tree->contains(1));
+            AssertTrue(tree->contains(4));
+            AssertTrue(tree->contains(3));
+            AssertEquals("└── 4 (B)\n    ├── 1 (B)\n    │   └── 3 (R)\n    └── 7 (B)\n        └── 6 (R)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing adjust case 3 [0 childs, symmetric]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(2);
+            tree->insert(19);
+            tree->insert(3);
+            tree->insert(6);
+            tree->insert(7);
+            tree->insert(10);
+            tree->insert(11);
+            tree->insert(18);
+            tree->insert(17);
+            tree->insert(20);
+
+            //same case when deleting the 3 (with 2 childs)
+            tree->remove(6);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(6));
+            AssertTrue(tree->contains(2));
+            AssertTrue(tree->contains(19));
+            AssertTrue(tree->contains(3));
+            AssertTrue(tree->contains(7));
+            AssertTrue(tree->contains(10));
+            AssertTrue(tree->contains(11));
+            AssertTrue(tree->contains(18));
+            AssertTrue(tree->contains(17));
+            AssertTrue(tree->contains(20));
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing adjust case 4 [0 childs, symmetric]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(7);
+            tree->insert(8);
+            tree->insert(3);
+            tree->insert(4);
+            tree->insert(5);
+            tree->insert(2);
+
+            tree->remove(8);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(8));
+            AssertTrue(tree->contains(7));
+            AssertTrue(tree->contains(3));
+            AssertTrue(tree->contains(4));
+            AssertTrue(tree->contains(5));
+            AssertTrue(tree->contains(2));
+            AssertEquals("└── 4 (B)\n    ├── 3 (B)\n    │   └── 2 (R)\n    └── 7 (B)\n        └── 5 (R)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing adjust case 5 [0 childs, right sibling child red]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(5);
+            tree->insert(1);
+            tree->insert(7);
+            tree->insert(2);
+
+            tree->remove(7);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(7));
+            AssertTrue(tree->contains(5));
+            AssertTrue(tree->contains(1));
+            AssertTrue(tree->contains(2));
+            AssertEquals("└── 2 (B)\n    ├── 1 (B)\n    └── 5 (B)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing adjust case 5 [0 childs, left sibling child red]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(5);
+            tree->insert(1);
+            tree->insert(10);
+            tree->insert(7);
+            tree->insert(12);
+            tree->insert(11);
+
+            tree->remove(7);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(7));
+            AssertTrue(tree->contains(5));
+            AssertTrue(tree->contains(1));
+            AssertTrue(tree->contains(10));
+            AssertTrue(tree->contains(12));
+            AssertTrue(tree->contains(11));
+            AssertEquals("└── 5 (B)\n    ├── 1 (B)\n    └── 11 (R)\n        ├── 10 (B)\n        └── 12 (B)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing adjust case 6 [0 childs, left node]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(5);
+            tree->insert(1);
+            tree->insert(7);
+            tree->insert(8);
+            tree->insert(9);
+            tree->insert(10);
+
+            tree->remove(7);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(7));
+            AssertTrue(tree->contains(5));
+            AssertTrue(tree->contains(1));
+            AssertTrue(tree->contains(8));
+            AssertTrue(tree->contains(9));
+            AssertTrue(tree->contains(10));
+            AssertEquals("└── 5 (B)\n    ├── 1 (B)\n    └── 9 (R)\n        ├── 8 (B)\n        └── 10 (B)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
+        }},
+        {"Removing adjust case 6 [0 childs, right node]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(5);
+            tree->insert(3);
+            tree->insert(7);
+            tree->insert(2);
+
+            tree->remove(7);
+            AssertTrue(tree->invariant());
+
+            AssertFalse(tree->contains(7));
+            AssertTrue(tree->contains(5));
+            AssertTrue(tree->contains(3));
+            AssertTrue(tree->contains(2));
+            AssertEquals("└── 3 (B)\n    ├── 2 (B)\n    └── 5 (B)\n", tree->toString());
+
+            delete tree;
+            TestPassed;
         }}
     };
 
