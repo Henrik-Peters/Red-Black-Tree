@@ -611,7 +611,7 @@ bool RBTree<T>::remove(const T key) {
 //iterator
 template <typename T>
 typename RBTree<T>::iterator& RBTree<T>::iterator::operator++ () {
-    //Perform an in-order tree traversal
+    //Perform a post-order tree traversal
     RBTreeNode* node = this->node;
     
     //The root node is the last element
