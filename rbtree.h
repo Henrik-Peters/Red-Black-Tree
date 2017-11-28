@@ -39,6 +39,9 @@ private:
         RBTreeNode(const T key, RBTreeNode* parent, RBTree<T>* tree, Color color);
         virtual ~RBTreeNode();
 
+        friend class RBTree<T>;
+        friend class iterator;
+
         #ifdef DEBUG
         bool invariant();
         int invariantBlackNodes();
@@ -69,6 +72,37 @@ public:
     void dumpTree();
     string toString();
     #endif
+
+    class iterator {
+        private:
+            RBTreeNode* node = nullptr;
+            
+        public:
+            typedef T value_type;
+            typedef const T& reference;
+            typedef const T* pointer;
+            typedef std::input_iterator_tag iterator_category;
+            friend class RBTree<T>;
+            
+            explicit iterator(RBTreeNode* _node) : node(_node) {}
+            //implicit copy constructor
+            
+            iterator& operator++ ();
+            inline iterator operator++ (int) {
+                iterator it = *this;
+                ++(*this);
+                return it;
+            }
+            
+            inline bool operator== (const iterator& other) { return node == other.node; }
+            inline bool operator!= (const iterator& other) { return !(*this == other); }
+            
+            inline reference operator* () { return node->key; }
+            inline pointer operator-> () { return &node->key; }
+    };
+
+    iterator begin();
+    iterator end();
 };
 
 //Tree nodes
@@ -572,6 +606,59 @@ bool RBTree<T>::remove(const T key) {
             return true;
         }
     }
+}
+
+//iterator
+template <typename T>
+typename RBTree<T>::iterator& RBTree<T>::iterator::operator++ () {
+    //Perform an in-order tree traversal
+    RBTreeNode* node = this->node;
+    
+    //The root node is the last element
+    if (node->parent == NULL) {
+        this->node = NULL;
+        return *this;
+    }
+    
+    //Switch to the right sibling or bubble up in the tree
+    if (node == node->parent->left && node->parent->right != NULL) {
+        node = node->parent->right;
+        
+    } else {
+        this->node = node->parent;
+        return *this;
+    }
+    
+    //Descend to the next leaf node
+    while (true) {
+        if (node->left != NULL) {
+            node = node->left;
+            
+        } else if (node->right != NULL) {
+            node = node->right;
+            
+        } else {
+            this->node = node;
+            return *this;
+        }
+    }
+}
+
+template <typename T>
+typename RBTree<T>::iterator RBTree<T>::begin() {
+    //The first node will be the minimum node
+    RBTreeNode* node = root;
+    
+    while (node->left != NULL) {
+        node = node->left;
+    }
+    
+    return iterator(node);
+}
+
+template <typename T>
+typename RBTree<T>::iterator RBTree<T>::end()   {
+    return iterator(NULL);
 }
 
 #ifdef DEBUG
