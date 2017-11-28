@@ -337,52 +337,41 @@ void RBTree<T>::RBTreeNode::remove() {
 
     //Red nodes can be deleted without any tree repairing
     if (node->color == BLACK) {
-
+        
         //When the child is red change the color to black
         if (child != NULL && child->color == RED) {
             child->color = BLACK;
             
         } else {
-            //Node and the child are both black (null nodes are treated as black)
-            bool pseudoNode = false;
+            //Node and the child are both black (that means the child is null)
+            //Create a pseudo double black leaf
+            child = new RBTreeNode((T)0, node->parent, node->tree, DOUBLE_BLACK);
 
-            if (child != NULL) {
-                child->color = DOUBLE_BLACK;
+            //Attach the double black leaf node
+            if (node->parent == NULL) {
+                node->tree->root = child;
+
+            } else if (node->parent->left == NULL) {
+                node->parent->left = child;
 
             } else {
-                //Create a pseudo double black leaf
-                child = new RBTreeNode((T)0, node->parent, node->tree, DOUBLE_BLACK);
-                pseudoNode = true;
-
-                //Attach the double black leaf node
-                if (node->parent == NULL) {
-                    node->tree->root = child;
-            
-                } else if (node->parent->left == NULL) {
-                    node->parent->left = child;
-            
-                } else {
-                    node->parent->right = child;
-                }
+                node->parent->right = child;
             }
 
             child->adjustRemove();
-            child->color = BLACK;
 
             //Detach the pseudo node from the tree
-            if (pseudoNode) {
-                if (child->parent == NULL) {
-                    child->tree->root = NULL;
-            
-                } else if (child->parent->left == child) {
-                    child->parent->left = NULL;
-            
-                } else {
-                    child->parent->right = NULL;
-                }
+            if (child->parent == NULL) {
+                child->tree->root = NULL;
 
-                delete child;
+            } else if (child->parent->left == child) {
+                child->parent->left = NULL;
+
+            } else {
+                child->parent->right = NULL;
             }
+
+            delete child;
         }
     }
 
