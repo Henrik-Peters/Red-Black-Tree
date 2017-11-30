@@ -649,8 +649,14 @@ typename RBTree<T>::iterator RBTree<T>::begin() {
     //The first node will be the minimum node
     RBTreeNode* node = root;
     
-    while (node->left != NULL) {
-        node = node->left;
+    if (node != NULL) {
+        while (node->left != NULL) {
+            node = node->left;
+        }
+        
+        while (node->right != NULL) {
+            node = node->right;
+        }
     }
     
     return iterator(node);
