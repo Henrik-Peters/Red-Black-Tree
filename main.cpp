@@ -140,6 +140,49 @@ bool randomRemove(int amount) {
     TestPassed;
 }
 
+bool randomIterate(int amount) {
+    IntTree* tree = new IntTree();
+    int act[amount];
+    int exp[amount];
+    
+    for (int i = 0; i < amount; i++) {
+        exp[i] = i;
+    }
+    
+    random_shuffle(exp, exp+amount);
+
+    for (int i = 0; i < amount; i++) {
+        tree->insert(exp[i]);
+    }
+
+    int elemCount = 0;
+
+    for (IntTree::iterator it = tree->begin(); it != tree->end(); ++it) {
+        act[elemCount++] = *it;
+    }
+
+    AssertEquals(amount, elemCount);
+
+    //Check if the expected array contains all values
+    for (int i = 0; i < amount; i++) {
+        
+        bool found = false;
+        for (int j = 0; j < amount && !found; j++) {
+            
+            if (act[i] == exp[j]) {
+                found = true;
+            }
+        }
+        
+        if (!found) {
+            return false;
+        }
+    }
+
+    delete tree;
+    TestPassed;
+}
+
 int main() {
     Test testSuite[] = {
         {"Inserting 1 element into empty tree", []() {
@@ -735,6 +778,51 @@ int main() {
         }},
         {"Removing 1000 elements (random)", []() {
             return randomRemove(1000);
+        }},
+        {"Iterator test [empty tree]", []() {
+            IntTree* tree = new IntTree();
+            bool foundElement = false;
+            
+            for (IntTree::iterator it = tree->begin(); it != tree->end(); ++it) {
+                foundElement = true;
+            }
+            
+            if (tree->begin() != tree->end()) {
+                return false;
+            }
+            
+            AssertFalse(foundElement);
+            
+            delete tree;
+            TestPassed;
+        }},
+        {"Iterator test [1 element]", []() {
+            IntTree* tree = new IntTree();
+            tree->insert(1);
+            
+            int elemCount = 0;
+            int number = 0;
+            
+            for (IntTree::iterator it = tree->begin(); it != tree->end(); ++it) {
+                number = *it;
+                elemCount++;
+            }
+            
+            AssertEquals(1, elemCount);
+            AssertEquals(1, number);
+            
+            delete tree;
+            TestPassed;
+        }},
+        {"Iterator random values [0..100 elements]", []() {
+            //Test with different amounts of elements
+            for (int i = 0; i < 100; i++) {
+                if (!randomIterate(i)) {
+                    return false;
+                }
+            }
+            
+            TestPassed;
         }}
     };
 
