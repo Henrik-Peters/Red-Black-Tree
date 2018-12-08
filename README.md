@@ -30,3 +30,8 @@ applications, it makes sense to store a key-value pair in each node. This tree o
 it in a way to store a pair should not be very difficult. The functions are implemented in the header file because
 a template is used. Another solution would be to keep the implementation separated and explicitly instantiate all
 the template types that are needed. The second solution should be preferred for large projects.
+
+## Visualization
+The tree can be visualized with the dump function. The dump will generate a graph and png file with the `Graphviz`-Tool.
+This can be useful for a better understanding of the data structure and for debugging purposes. Example of the tree visualization:
+![Tree-Dump-Example](https://raw.githubusercontent.com/wiki/Henrik-Peters/Red-Black-Tree/images/tree-example.png)
