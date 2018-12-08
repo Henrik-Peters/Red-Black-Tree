@@ -823,21 +823,6 @@ int main() {
             }
             
             TestPassed;
-        }},
-        {"Tree dump", []() {
-            IntTree* tree = new IntTree();
-            tree->insert(5);
-            tree->insert(10);
-            tree->insert(6);
-            tree->insert(17);
-            tree->insert(18);
-            tree->insert(7);
-            tree->insert(8);
-            tree->insert(14);
-            tree->dumpTree("example");
-
-            delete tree;
-            TestPassed;
         }}
     };
 

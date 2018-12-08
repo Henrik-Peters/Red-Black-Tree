@@ -574,11 +574,11 @@ void RBTree<T>::RBTreeNode::dumpNode(ofstream& graphFile) {
             break;
 
         case DOUBLE_BLACK:
-            graphFile << "black";
+            graphFile << "black, peripheries=2";
             break;
 
         default:
-            graphFile << "white";
+            graphFile << "azure4";
     }
 
     graphFile << "]" << endl;
@@ -720,7 +720,7 @@ void RBTree<T>::dumpTree(string dumpName) {
     graphFile.open("dump/" + dumpName + ".gv");
 
     graphFile << "digraph G {" << endl;
-    graphFile << "node [style=filled, fontcolor=white, fontname = \"Arial Black\"];" << endl;
+    graphFile << "node [style=filled, penwidth=2, fontcolor=white, fontname=\"Arial Black\"];" << endl;
     graphFile << "graph [pad=\"0.1\", nodesep=\"1\", ranksep=\"1.5\"];" << endl;
 
     if (root != NULL) {
