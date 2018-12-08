@@ -34,4 +34,6 @@ the template types that are needed. The second solution should be preferred for 
 ## Visualization
 The tree can be visualized with the dump function. The dump will generate a graph and png file with the `Graphviz`-Tool.
 This can be useful for a better understanding of the data structure and for debugging purposes. Example of the tree visualization:
-![Tree-Dump-Example](https://raw.githubusercontent.com/wiki/Henrik-Peters/Red-Black-Tree/images/tree-example.png)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/wiki/Henrik-Peters/Red-Black-Tree/images/tree-example.png" width="800">
+</p>
