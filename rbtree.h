@@ -8,6 +8,7 @@
 
 #ifdef DEBUG
 #include <assert.h>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -46,6 +47,7 @@ private:
         bool invariant();
         int invariantBlackNodes();
         void toString(ostream& buffer, const string& prefix, bool lastNode);
+        void dumpNode(ofstream& graphFile);
         #endif
 
         inline bool isBlack() const { return (this->color == BLACK); }
@@ -557,6 +559,40 @@ void RBTree<T>::RBTreeNode::toString(ostream& buffer, const string& prefix, bool
         right->toString(buffer, prefix + (lastNode ? "    " : "│   "), true);
     }
 }
+
+template <typename T>
+void RBTree<T>::RBTreeNode::dumpNode(ofstream& graphFile) {
+    graphFile << "\"" << key << "\" " << "[shape=circle, style=filled, fillcolor=";
+
+    switch (color) {
+        case RED:
+            graphFile << "\"#EB0000\"";
+            break;
+
+        case BLACK:
+            graphFile << "black";
+            break;
+
+        case DOUBLE_BLACK:
+            graphFile << "black";
+            break;
+
+        default:
+            graphFile << "white";
+    }
+
+    graphFile << "]" << endl;
+
+    if (left != NULL) {
+        graphFile << key << " -> " << left->key << endl;
+        left->dumpNode(graphFile);
+    }
+
+    if (right != NULL) {
+        graphFile << key << " -> " << right->key << endl;
+        right->dumpNode(graphFile);
+    }
+}
 #endif
 
 
@@ -679,12 +715,27 @@ bool RBTree<T>::invariant() {
 
 template <typename T>
 void RBTree<T>::dumpTree(string dumpName) {
-    if (root == NULL) {
-        cout << "empty tree";
-    } else {
+    system("mkdir -p dump");
+    ofstream graphFile;
+    graphFile.open("dump/" + dumpName + ".gv");
 
+    graphFile << "digraph G {" << endl;
+    graphFile << "node [style=filled, fontcolor=white, fontname = \"Arial Black\"];" << endl;
+    graphFile << "graph [pad=\"0.1\", nodesep=\"1\", ranksep=\"1.5\"];" << endl;
+
+    if (root != NULL) {
+        root->dumpNode(graphFile);
     }
-    cout << "Dumping: " << dumpName;
+
+    graphFile << "}" << endl;
+    graphFile.close();
+
+    string graphizCall = "dot -Tpng dump/" + dumpName + ".gv -o dump/" + dumpName + ".png";
+    string openCall = "xdg-open dump/" + dumpName + ".png";
+
+    system(graphizCall.c_str());
+    system("cd dump && rm *.gv");
+    system(openCall.c_str());
 }
 
 template <typename T>
